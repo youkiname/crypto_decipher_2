@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, abort
-from decipher import calculate_key_length, calculate_offsets, decipher, ALPH
+from decipher import calculate_key_length, calculate_offsets, decipher, get_matrix, ALPH
 from flask_cors import CORS
 
 
@@ -8,16 +8,19 @@ CORS(app)
 
 
 def web_controller(text: str, custom_key: str) -> dict:
-    KEY_LENGTH = calculate_key_length(text)
-    offsets = calculate_offsets(text, KEY_LENGTH)
-    presumptive_key = "".join([ALPH[i] for i in offsets])
+    key_length, indices_of_coincidence = calculate_key_length(text)
+    matrix = get_matrix(text, key_length)
+    offsets = calculate_offsets(text, key_length)
+    presumptive_key = "".join([ALPH[i] for i in offsets.values()])
     key = custom_key or presumptive_key
     decipher_text = decipher(text, key)
     return {
         "decipherText": decipher_text,
         "presumptiveKey": presumptive_key,
         "usedKey": key,
-        "presumptiveOffsets": offsets
+        "presumptiveOffsets": list(offsets.items()),
+        "indicesOfCoincidence": indices_of_coincidence,
+        "matrix": matrix
     }
 
 

@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Tuple
 import sys
 
 
@@ -26,18 +26,22 @@ def get_index_of_coincidence(S: str) -> float:
     return result
 
 
-def calculate_key_length(S, max_length: int = 8) -> int:
+def calculate_key_length(S, max_length: int = 8) -> Tuple[int, List[int]]:
     avgs = []
+    indices_of_coincidence = []
     for key_length in range(1, max_length):
+        indices_of_coincidence.append([])
         # print("Key", key_length)
         matrix = get_matrix(S, key_length)
         sum_coincidence = 0
         for i, row in enumerate(matrix):
             index_of_coincidence = get_index_of_coincidence(row)
             sum_coincidence += index_of_coincidence
+            indices_of_coincidence[-1].append(index_of_coincidence)
             # print("\t", index_of_coincidence)
         avgs.append(sum_coincidence / len(matrix))
-    return sorted(enumerate(avgs), key=lambda x: x[1], reverse=True)[0][0] + 1
+    key_length = sorted(enumerate(avgs), key=lambda x: x[1], reverse=True)[0][0] + 1
+    return key_length, indices_of_coincidence[key_length - 1]
 
 
 def get_top_by_frequency(S: str) -> List[int]:
@@ -47,12 +51,12 @@ def get_top_by_frequency(S: str) -> List[int]:
     return sorted(frequency.items(), key=lambda x: x[1], reverse=True)[0][0]
 
 
-def calculate_offsets(S:str, key_length: int) -> List[int]:
-    result = []
+def calculate_offsets(S:str, key_length: int) -> Dict[str, int]:
+    result = {}
     matrix = get_matrix(S, key_length)
     for row in matrix:
         top_char = get_top_by_frequency(row)
-        result.append(ALPH.index(top_char))
+        result[top_char] = ALPH.index(top_char)
     return result
 
 
@@ -68,9 +72,9 @@ def decipher(S: str, key: str) -> str:
 
 
 def main():
-    KEY_LENGTH = calculate_key_length(S)
+    KEY_LENGTH, _ = calculate_key_length(S)
     print("Предположительная длина ключа", KEY_LENGTH)
-    offsets = calculate_offsets(S, KEY_LENGTH)
+    offsets = calculate_offsets(S, KEY_LENGTH).values()
     print(f"Предположительные сдвиги {offsets}")
     presumptive_key = "".join([ALPH[i] for i in offsets])
     print(f"Предположительный ключ '{presumptive_key}'")
