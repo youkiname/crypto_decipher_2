@@ -11,14 +11,14 @@ def web_controller(text: str, custom_key: str) -> dict:
     key_length, indices_of_coincidence = calculate_key_length(text)
     matrix = get_matrix(text, key_length)
     offsets = calculate_offsets(text, key_length)
-    presumptive_key = "".join([ALPH[i] for i in offsets.values()])
+    presumptive_key = "".join([top_char for top_char, offset in offsets])
     key = custom_key or presumptive_key
     decipher_text = decipher(text, key)
     return {
         "decipherText": decipher_text,
         "presumptiveKey": presumptive_key,
         "usedKey": key,
-        "presumptiveOffsets": list(offsets.items()),
+        "presumptiveOffsets": offsets,
         "indicesOfCoincidence": indices_of_coincidence,
         "matrix": matrix
     }

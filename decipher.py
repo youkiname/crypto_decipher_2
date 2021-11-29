@@ -51,12 +51,12 @@ def get_top_by_frequency(S: str) -> List[int]:
     return sorted(frequency.items(), key=lambda x: x[1], reverse=True)[0][0]
 
 
-def calculate_offsets(S:str, key_length: int) -> Dict[str, int]:
-    result = {}
+def calculate_offsets(S:str, key_length: int) -> List[Tuple[str, int]]:
+    result = []
     matrix = get_matrix(S, key_length)
     for row in matrix:
         top_char = get_top_by_frequency(row)
-        result[top_char] = ALPH.index(top_char)
+        result.append((top_char, ALPH.index(top_char)))
     return result
 
 
@@ -74,9 +74,9 @@ def decipher(S: str, key: str) -> str:
 def main():
     KEY_LENGTH, _ = calculate_key_length(S)
     print("Предположительная длина ключа", KEY_LENGTH)
-    offsets = calculate_offsets(S, KEY_LENGTH).values()
+    offsets = calculate_offsets(S, KEY_LENGTH)
     print(f"Предположительные сдвиги {offsets}")
-    presumptive_key = "".join([ALPH[i] for i in offsets])
+    presumptive_key = "".join([top_char for top_char, offset in offsets])
     print(f"Предположительный ключ '{presumptive_key}'")
     try:
         key = sys.argv[1]
